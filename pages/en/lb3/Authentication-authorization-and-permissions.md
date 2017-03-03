@@ -68,28 +68,26 @@ module.exports = function enableAuthentication(server) {
 
 ### Preparing access control models
 
-Make sure the `User` model, (and possibly the `AccessToken` model) is configured appropriately according to your set-up.
+You must configure the `User` model, (and possibly the `AccessToken` model) according to your set-up.
 
-Normally you should have already implemented at least one custom user model, extending the built-in `User` model, as described in [Using built-in models](Using-built-in-models.html#user-model).
+Normally you will implement at least one custom user model, extending the built-in `User` model, as described in [Using built-in models](Using-built-in-models.html#user-model).
 
-Usually you don't need to extend or customize the built-in models `Role`, `RoleMapping`, and `ACL`. Just make sure they are declared in the `model-config.json` configuration file, or in case you don't require either to customize the `AccessToken` model that you pass a datasource to the `enableAuth()` method as follows:
+Usually you don't need to extend or customize the built-in models `Role`, `RoleMapping`, and `ACL`. Just make sure they are declared in the `model-config.json` configuration file, or if you don't need to customize the `AccessToken` model, pass a datasource to the `enableAuth()` method as follows:
 
 ```javascript
 server.enableAuth({ datasource: 'db' });
 ```
 
-{% include note.html content="
-Passing a `datasource` to the `enableAuth()` method as shown here will let LoopBack take care of attaching any built-in models required by the access control feature, which is suitable for most applications.
+{% include note.html content="Passing a `datasource` to the `enableAuth()` method as shown here will let LoopBack take care of attaching any built-in models required by the access control feature, which is suitable for most applications.
 " %}
 
-{% include tip.html content="
-Whether you can use the built-in `AccessToken` model or create a custom accessToken model extending the built-in model depends on whether you plan to use one or several user models extending the built-in `User` model. Both cases are covered in the next two sections.
+{% include tip.html content="Whether you can use the built-in `AccessToken` model or create a custom model that extends `AccessToken` depends on whether you plan to use one or several user models extending the built-in `User` model, as described in the following sections.
 " %}
 
 #### Access control with a single user model and built-in AccessToken model
 
-If your application leverages only one type of user extending the built-in `User` model (which should the case in a majority of configurations)
-and use the built-in AccessToken model, you need to change the "belongsTo" relation of the built-in AccessToken model to point to your new User model.  This can be achieved by modifying `server/model-config.json` file as follows:
+In the most common scenario, an application uses only one model that extends the built-in `User` model
+and uses the built-in `AccessToken` model.  In this case, you need to change the "belongsTo" relation of the built-in `AccessToken` model to refer to your custom User model.  To do this, edit `server/model-config.json` file as follows:
 
 {% include code-caption.html content="server/model-config.json" %}
 ```json
@@ -110,18 +108,18 @@ and use the built-in AccessToken model, you need to change the "belongsTo" relat
 }
 ```
 
-{% include tip.html content="
-Model relations are preserved when extending models, therefore your custom User model will come with a pre-configured hasMany relation to the default AccessToken model.
+{% include tip.html content="Model relations are preserved when extending models, therefore your custom `User` model will automatically have a hasMany relation to the default `AccessToken` model.
 " %}
 
-#### Customizing AccessToken model
+#### Customizing the AccessToken model
 
-If your application needs to customize the AccessToken model, for example
-to add extra properties, then you need to modify the User model to use
-the new AccessToken model for authentication.
+If your application needs to customize the `AccessToken` model, for example
+to add extra properties, then you need to modify the `User` model to use
+the new `AccessToken` model for authentication.
 
-In your custom User model definition file, make sure the `relations` section
-configures the "accessTokens" relation to use your custom AccessToken model.
+In your custom `User` model definition file, make sure the `relations` section
+configures the "accessTokens" relation to use your custom `AccessToken` model
+as shown here:
 
 {% include code-caption.html content="common/models/custom-user.json" %}
 ```json
@@ -145,12 +143,12 @@ configures the "accessTokens" relation to use your custom AccessToken model.
 
 #### Access control with multiple user models
 
-Having multiple user models may be required in certain situations to deal with significantly different types of users in an application.
+An application with significantly different types of users may require multiple user models.
 
 If the types of users differ by just a few properties, then it's easiest to overload a single custom user model with all properties required, and differentiate access control behavior with static roles mapped to the different user types.
 
-A more complex situation is when the different types of users differ not just in their properties, but also by their access rights and relations with other models. For example, applications where the concept of an _organization_ is involved, creating intertwined layers of relationships and thus of access control.
-Such circumstances require the application to manage the different user types in separate models.
+If however the different types of users have different access rights and relations with other models,
+then you may need to use multiple distinct user models.  For example, applications where the concept of an _organization_ is involved, creating intertwined layers of relationships and thus of access control.
 
 Consider the following example:  
 
@@ -169,8 +167,7 @@ Each type of user has different relations with and access rights to the models c
 
 ##### Setup
 
-{% include important.html content="
-When using multiple user models, you should not let LoopBack auto-attach built-in models required by the access control feature.  Instead, call the `enableAuth()` method with no argument and manually define all models required in the `server/model-config.json` configuration file.
+{% include important.html content="When using multiple user models, you should not let LoopBack auto-attach built-in models required by the access control feature.  Instead, call the `enableAuth()` method with no argument and manually define all models required in the `server/model-config.json` configuration file.
 " %}
 
 To use several models extending the built-in `User` model, you must modify the relations between the `users` models and the `AccessToken` models to allow a single `AccessToken` model to host access tokens for multiple types of users while at the same time allowing each `user` model instance to be linked to unique related access tokens.  
