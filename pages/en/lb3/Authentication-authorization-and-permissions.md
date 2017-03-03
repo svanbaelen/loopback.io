@@ -86,27 +86,61 @@ Passing a `datasource` to the `enableAuth()` method as shown here will let LoopB
 Whether you can use the built-in `AccessToken` model or create a custom accessToken model extending the built-in model depends on whether you plan to use one or several user models extending the built-in `User` model. Both cases are covered in the next two sections.
 " %}
 
-#### Access control with a single user model
+#### Access control with a single user model and built-in AccessToken model
 
-If your application leverages only one type of user extending the built-in `User` model (which should the case in a majority of configurations), you have little further configuration to do.
+If your application leverages only one type of user extending the built-in `User` model (which should the case in a majority of configurations)
+and use the built-in AccessToken model, you need to change the "belongsTo" relation of the built-in AccessToken model to point to your new User model.  This can be achieved by modifying `server/model-config.json` file as follows:
 
-1.  Rely on the built-in `AccessToken` model.  
-2.  Make sure your custom user model implements a hasMany relation with the AccessToken model as follows:
+{% include code-caption.html content="server/model-config.json" %}
+```json
+{
+  // ...
+  "AccessToken": {
+    "dataSource": "db",
+    "public": false,
+    "relations": {
+      "user": {
+        "type": "belongsTo",
+        "model": "user",
+        "foreignKey": "userId"
+      }
+    }
+  }
+  // ...
+}
+```
+
+{% include tip.html content="
+Model relations are preserved when extending models, therefore your custom User model will come with a pre-configured hasMany relation to the default AccessToken model.
+" %}
+
+#### Customizing AccessToken model
+
+If your application needs to customize the AccessToken model, for example
+to add extra properties, then you need to modify the User model to use
+the new AccessToken model for authentication.
+
+In your custom User model definition file, make sure the `relations` section
+configures the "accessTokens" relation to use your custom AccessToken model.
 
 {% include code-caption.html content="common/models/custom-user.json" %}
 ```json
-...
-"relations": {
-	"accessTokens": {
-		"type": "hasMany",
-		"model": "AccessToken",
-		"foreignKey": "userId",
-		"options": {
-			"disableInclude": true
-		}
-	}
-},
-...
+{
+  "name": "CustomUser",
+  "base": "User",
+  // ...
+  "relations": {
+    "accessTokens": {
+      "type": "hasMany",
+      "model": "AccessToken",
+      "foreignKey": "userId",
+      "options": {
+        "disableInclude": true
+      }
+    }
+  },
+  // ...
+}
 ```
 
 #### Access control with multiple user models
