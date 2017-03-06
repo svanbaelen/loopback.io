@@ -7,7 +7,7 @@ keywords: LoopBack
 tags: [models]
 sidebar: lb3_sidebar
 permalink: /doc/en/lb3/Accessing-related-models.html
-summary: For related models, LoopBack automatically <i>related model methods</i> corresponding to the API routes defined for the relationship.
+summary: For related models, LoopBack automatically creates <i>related model methods</i> corresponding to the API routes defined for the relationship.
 ---
 <br clear="all"/>
 
@@ -22,7 +22,7 @@ This can be a security risk since, for example, `GET /OpenModel/{id}/ACLSecuredM
 When two models have a relationship between them (see [Creating model relations](Creating-model-relations.html)),
 LoopBack automatically creates a set of _related model methods_ corresponding to the API routes defined for the relationship.
 
-In the following list, _modelName_ is the name of the related model and _modelNamePlural_ is the plural form of the related model name. 
+In the following list, _ModelName_ is the name of the related model and _ModelNamePlural_ is the plural form of the related model name. 
 
 {% include note.html content="
 In the method names below, the separators are _double_ underscores, \_\_.
